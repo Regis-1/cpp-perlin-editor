@@ -14,6 +14,8 @@ public:
     void Update() override;
 
 private:
-    bool _showGrid{true};
-    PerlinGenerator _perlinGen{400, 300, 13};
+    bool _showGrid{false};
+    bool _oneGen{true};
+    PerlinGenerator _perlinGen{600, 600};
+    double* _pixels{nullptr};
 };

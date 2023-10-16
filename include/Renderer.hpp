@@ -35,6 +35,7 @@ public:
     void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
     void SetColor(SDL_Color col);
     void SetCellSize(unsigned int size);
+    void RenderPixel(int x, int y);
     void RenderTile(int x, int y);
     void RenderLine(int x1, int y1, int x2, int y2);
     void Clear() { SDL_RenderClear(_renderer); }

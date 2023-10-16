@@ -10,6 +10,7 @@ public:
 
     double Noise(double x, double y, double z);
     double OctaveNoise(double x, double y, double z, int octaves, double persistence);
+    void Generate2D(double* pixels, int octaves, double persistence);
     void Seed(unsigned int seed);
 
 private:
@@ -26,7 +27,11 @@ private:
         return num;
     }
     static double Grad(int hash, double x, double y, double z) {
-        switch (hash & 0xF) {
+        //float u = (h < 8) ? x : y;
+        //float v = (h < 4) ? y : ((h == 12 || h == 14) ? x : z);
+        //return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
+
+        switch(hash & 0xF) {
             case 0x0: return  x + y;
             case 0x1: return -x + y;
             case 0x2: return  x - y;
@@ -43,8 +48,15 @@ private:
             case 0xD: return -y + z;
             case 0xE: return  y - x;
             case 0xF: return -y - z;
-            default: return 0;
+            default: return 0; // never happens
         }
+    }
+    double MapRange(double value, double fromMin, double fromMax, double toMin, double toMax) {
+        // First, normalize the value to a range from 0 to 1 within the original range.
+        double normalizedValue = (value - fromMin) / (fromMax - fromMin);
+        // Then, scale the normalized value to the new range.
+        double mappedValue = normalizedValue * (toMax - toMin) + toMin;
+        return mappedValue;
     }
     void GeneratePermutation();
 

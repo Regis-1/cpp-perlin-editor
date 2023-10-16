@@ -9,10 +9,25 @@ EditorScene::EditorScene() {
 
 EditorScene::~EditorScene() {}
 
+static double MapRange(double value, double fromMin, double fromMax, double toMin, double toMax) {
+    // First, normalize the value to a range from 0 to 1 within the original range.
+    double normalizedValue = (value - fromMin) / (fromMax - fromMin);
+    // Then, scale the normalized value to the new range.
+    double mappedValue = normalizedValue * (toMax - toMin) + toMin;
+    return mappedValue;
+}
+
 void EditorScene::Render() {
     if (_showGrid) {
         RenderUtils::RenderGrid();
     }
+
+    for (int h = 0; h < 600; h++)
+        for (int w = 0; w < 600; w++) {
+            double color = MapRange(_pixels[h*600+w], 0, 1.0, 0, 255);
+            Renderer::GetInstance()->SetColor({(Uint8)color,(Uint8)color,(Uint8)color,255});
+            Renderer::GetInstance()->RenderPixel(h, w);
+        }
 }
 
 void EditorScene::ProcessEvents(App* app, SDL_Event& event) {
@@ -26,9 +41,14 @@ void EditorScene::ProcessEvents(App* app, SDL_Event& event) {
 }
 
 void EditorScene::Update() {
-    auto start = std::chrono::high_resolution_clock::now();
-    std::cout << _perlinGen.OctaveNoise(1.2, 1.4, 0, 3, 0.5) << std::endl;
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop-start);
-    std::cout << duration.count() << "ms" << std::endl;
+    if (_oneGen) {
+        _pixels = new double[600*600];
+        auto start = std::chrono::high_resolution_clock::now();
+        _perlinGen.Generate2D(_pixels, 4, 0.6);
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop-start);
+        std::cout << duration.count() << "us" << std::endl;
+        std::cout << "-------------------------" << std::endl;
+        _oneGen = false;
+    }
 }

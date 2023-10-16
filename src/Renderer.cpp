@@ -24,6 +24,10 @@ void Renderer::SetColor(SDL_Color col) {
     SDL_SetRenderDrawColor(_renderer, col.r, col.g, col.b, col.a);
 }
 
+void Renderer::RenderPixel(int x, int y) {
+    SDL_RenderPoint(_renderer, x, y);
+}
+
 void Renderer::RenderLine(int x1, int y1, int x2, int y2) {
     SDL_RenderLine(_renderer, x1, y1, x2, y2);
 }
