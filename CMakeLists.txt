@@ -9,6 +9,7 @@ add_executable(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/src/App.cpp
     ${CMAKE_SOURCE_DIR}/src/EditorScene.cpp
     ${CMAKE_SOURCE_DIR}/src/Renderer.cpp
+    ${CMAKE_SOURCE_DIR}/src/PerlinGenerator.cpp
     )
 
 #imgui sources

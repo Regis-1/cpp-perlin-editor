@@ -1,6 +1,9 @@
 #include "EditorScene.hpp"
 #include "RenderUtils.hpp"
 
+#include <iostream>
+#include <chrono>
+
 EditorScene::EditorScene() {
 }
 
@@ -22,4 +25,10 @@ void EditorScene::ProcessEvents(App* app, SDL_Event& event) {
     }
 }
 
-void EditorScene::Update() {}
+void EditorScene::Update() {
+    auto start = std::chrono::high_resolution_clock::now();
+    std::cout << _perlinGen.OctaveNoise(1.2, 1.4, 0, 3, 0.5) << std::endl;
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop-start);
+    std::cout << duration.count() << "ms" << std::endl;
+}

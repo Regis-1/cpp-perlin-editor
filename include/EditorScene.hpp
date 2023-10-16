@@ -2,6 +2,7 @@
 
 #include "Scene.hpp"
 #include "Renderer.hpp"
+#include "PerlinGenerator.hpp"
 
 class EditorScene : public Scene {
 public:
@@ -14,4 +15,5 @@ public:
 
 private:
     bool _showGrid{true};
+    PerlinGenerator _perlinGen{400, 300, 13};
 };

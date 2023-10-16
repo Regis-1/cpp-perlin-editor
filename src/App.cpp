@@ -61,7 +61,7 @@ void App::Run() {
         // events
         _sceneStack.back()->ProcessEvents(this, _event);
         // update
-        // _sceneStack.back()->Update();
+        _sceneStack.back()->Update();
         // render
         Renderer::GetInstance()->SetColor(0,0,0,255);
         Renderer::GetInstance()->Clear();
