@@ -3,6 +3,14 @@
 #include <iostream>
 #include <cmath>
 
+PerlinGenerator::PerlinGenerator() 
+    : _repeat(-1), _permutation(256, 0)
+{
+    Seed(0);
+    for (int i = 0; i < 512; i++) {
+        _p[i] = _permutation[i%256];
+    }
+}
 PerlinGenerator::PerlinGenerator(int w, int h, unsigned int seed, int repeat)
     : _width(w), _height(h), _repeat(repeat), _permutation(256,0)
 {
@@ -13,6 +21,11 @@ PerlinGenerator::PerlinGenerator(int w, int h, unsigned int seed, int repeat)
 }
 
 double PerlinGenerator::Noise(double x, double y, double z) {
+    if (_width <= 0 || _height <= 0) {
+        std::cout << "Wrong dimensions in PerlinGenerator!" << std::endl;
+        return 0.f;
+    }
+
     if(_repeat > 0) {
         x = std::fmod(x, _repeat);
         y = std::fmod(y, _repeat);
@@ -62,6 +75,11 @@ double PerlinGenerator::Noise(double x, double y, double z) {
 double PerlinGenerator::OctaveNoise(double x, double y, double z, int octaves,
         double persistence)
 {
+    if (_width <= 0 || _height <= 0) {
+        std::cout << "Wrong dimensions in PerlinGenerator!" << std::endl;
+        return 0.f;
+    }
+
     double total = 0;
     double frequency = 1;
     double amplitude = 1;
@@ -79,11 +97,16 @@ double PerlinGenerator::OctaveNoise(double x, double y, double z, int octaves,
 }
 
 void PerlinGenerator::Generate2D(double* pixels, int octaves, double persistence) {
+    if (_width <= 0 || _height <= 0) {
+        std::cout << "Wrong dimensions in PerlinGenerator!" << std::endl;
+        return;
+    }
+
     for (int h = 0; h < _height; h++) {
         double y = MapRange(h, 0, _height, 0, 1.0);
         for (int w = 0; w < _width; w++) {
             double x = MapRange(w, 0, _width, 0, 1.0);
-            pixels[h*_height+w] = OctaveNoise(x, y, 0.f, octaves, persistence);
+            pixels[h*_width+w] = OctaveNoise(x, y, 0.f, octaves, persistence);
         }
     }
 }
@@ -91,6 +114,9 @@ void PerlinGenerator::Generate2D(double* pixels, int octaves, double persistence
 void PerlinGenerator::Seed(unsigned int seed) {
     seed == 0 ? _mt_rand.seed(std::random_device()()) : _mt_rand.seed(seed);
     GeneratePermutation();
+    for (int i = 0; i < 512; i++) {
+        _p[i] = _permutation[i%256];
+    }
 }
 
 // Fisher-Yates shuffle

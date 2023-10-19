@@ -4,7 +4,7 @@
 
 class PerlinGenerator {
 public:
-    PerlinGenerator() = delete;
+    PerlinGenerator();
     PerlinGenerator(int w, int h, unsigned int seed = 0, int repeat = -1);
     ~PerlinGenerator(){}
 
@@ -12,6 +12,7 @@ public:
     double OctaveNoise(double x, double y, double z, int octaves, double persistence);
     void Generate2D(double* pixels, int octaves, double persistence);
     void Seed(unsigned int seed);
+    void SetDimensions(int w, int h) { _width = w; _height = h; }
 
 private:
     static double Fade(double t) {
@@ -60,8 +61,8 @@ private:
     }
     void GeneratePermutation();
 
-    int _width;
-    int _height;
+    int _width{0};
+    int _height{0};
     int _repeat;
 
     int _p[512];

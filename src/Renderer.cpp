@@ -3,6 +3,17 @@
 Renderer* Renderer::instancePtr = nullptr;
 
 Renderer::Renderer() {
+    CreatePalettes();
+}
+
+void Renderer::CreatePalettes() {
+    //grayscale palette
+    _palettes[0] = SDL_CreatePalette(256);
+    SDL_Color colors[256];
+    for (int i = 0; i < 256; i++) {
+        colors[i] = {(Uint8)i, (Uint8)i, (Uint8)i, 0xFF};
+    }
+    SDL_SetPaletteColors(_palettes[0], colors, 0, 256);
 }
 
 void Renderer::SetRenderer(SDL_Renderer* ren) {
@@ -39,4 +50,22 @@ void Renderer::RenderTile(int x, int y) {
         (float)_cellSize, (float)_cellSize
     };
     SDL_RenderFillRect(_renderer, &rect);
+}
+
+void Renderer::RenderTexture(SDL_Texture* texture) {
+    SDL_RenderTexture(_renderer, texture, NULL, NULL);
+}
+
+SDL_Surface* Renderer::CreateSurfaceFrom(void* pixels, int width, int height,
+        int pitch, Uint32 format) {
+
+    return SDL_CreateSurfaceFrom(pixels, width, height, pitch, format);
+}
+
+SDL_Texture* Renderer::CreateTextureFromSurface(SDL_Surface* surface,
+        int palette_idx) {
+    SDL_SetSurfacePalette(surface, _palettes[palette_idx]);
+    SDL_Texture* out = SDL_CreateTextureFromSurface(_renderer, surface);
+    SDL_DestroySurface(surface); // free surface (we already have a texture)
+    return out;
 }

@@ -14,8 +14,16 @@ public:
     void Update() override;
 
 private:
+    void MakeImGuiWindow();
+
     bool _showGrid{false};
-    bool _oneGen{true};
-    PerlinGenerator _perlinGen{600, 600};
+    bool _generatePerlin{true};
+    PerlinGenerator _perlinGen;
     double* _pixels{nullptr};
+    SDL_Texture* _perlinTexture;
+    int _perlinWidth;
+    int _perlinHeight;
+    int _perlinOctaves;
+    float _perlinPersistence;
+    int _perlinSeed;
 };
