@@ -7,11 +7,11 @@
 #include "SDL3/SDL.h"
 
 EditorScene::EditorScene() {
-    _perlinWidth = 600;
-    _perlinHeight = 400;
-    _perlinGen.SetDimensions(_perlinWidth, _perlinHeight);
-    _perlinOctaves = 5; _perlinPersistence = 0.5;
-    _perlinSeed = 0;
+    _perlinParams.width = 600;
+    _perlinParams.height = 400;
+    _perlinGen.SetDimensions(_perlinParams.width, _perlinParams.height);
+    _perlinParams.octaves = 5; _perlinParams.persistence = 0.5;
+    _perlinParams.seed = 0;
 }
 
 EditorScene::~EditorScene() {}
@@ -33,21 +33,22 @@ void EditorScene::Update() {
             _perlinTexture = nullptr;
         }
 
-        _pixels = new double[_perlinWidth*_perlinHeight];
+        _pixels = new double[_perlinParams.width*_perlinParams.height];
         auto start = std::chrono::high_resolution_clock::now();
-        _perlinGen.Generate2D(_pixels, _perlinOctaves, _perlinPersistence);
+        _perlinGen.Generate2D(_pixels, _perlinParams.octaves, _perlinParams.persistence);
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop-start);
         std::cout << "Noise values generation: " << duration.count() << "us" << std::endl;
         _generatePerlin = false;
 
-        uint8_t sdlPixels[_perlinWidth*_perlinHeight];
-        for (int i = 0; i < _perlinWidth*_perlinHeight; i++)
+        uint8_t sdlPixels[_perlinParams.width*_perlinParams.height];
+        for (int i = 0; i < _perlinParams.width*_perlinParams.height; i++)
             sdlPixels[i] = static_cast<uint8_t>(_pixels[i]*255);
 
 
         SDL_Surface* surface = Renderer::GetInstance()->CreateSurfaceFrom(
-                sdlPixels, _perlinWidth, _perlinHeight, _perlinWidth, SDL_PIXELFORMAT_INDEX8);
+                sdlPixels, _perlinParams.width, _perlinParams.height,
+                _perlinParams.width, SDL_PIXELFORMAT_INDEX8);
         _perlinTexture = Renderer::GetInstance()->CreateTextureFromSurface(surface, 0);
         delete [] _pixels; _pixels = nullptr; // clean the _pixel pointer
     }
@@ -79,17 +80,29 @@ void EditorScene::Render() {
 void EditorScene::MakeImGuiWindow() {
     ImGui::Begin("Perlin Editor");
     if (ImGui::CollapsingHeader("Base parameters")) {
-        ImGui::DragInt("Seed", &_perlinSeed, 0.5f, 0, UINT_MAX, "%d", ImGuiSliderFlags_None);
-        ImGui::DragInt("Octaves", &_perlinOctaves, 0.5f, 1, 32, "%d", ImGuiSliderFlags_None);
-        ImGui::DragFloat("Persistence", &_perlinPersistence, 0.005f, 0.005f, 0.995f,
-                "%.3f",ImGuiSliderFlags_None);
+        ImGui::DragInt("Seed", &_perlinParams.seed, 1, 0, UINT_MAX);
+        ImGui::DragInt("Octaves", &_perlinParams.octaves, 0.5f, 1, 32);
+        ImGui::DragFloat("Persistence", &_perlinParams.persistence, 0.001f, 0.001f, 0.999f);
         if (ImGui::Button("Generate")) {
-            _perlinGen.Seed(_perlinSeed);
+            _perlinGen.Seed(_perlinParams.seed);
             _generatePerlin = true;
         }
     }
     if (ImGui::CollapsingHeader("Coloring")) {
-        ImGui::Text("Work in progress...");
+        int& colLayersIxd = _perlinParams.layersIdx;
+        if (ImGui::BeginListBox("Layers")) {
+            for (int i = 0; i < 4; i++) {
+                const bool isSelected = (colLayersIxd == i);
+                if (ImGui::Selectable(_perlinParams.layersNames[i], isSelected))
+                    colLayersIxd = i;
+
+                if (isSelected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndListBox();
+        }
+        ImGui::SliderFloat("Threshold", &_perlinParams.layersThresholds[colLayersIxd], 0.f, 1.f);
+        ImGui::ColorEdit3("Color", (float*)&_perlinParams.layersColors[colLayersIxd]);
         if (ImGui::Button("Color noise")) {}
     }
     if (ImGui::CollapsingHeader("Utilities")) {

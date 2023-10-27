@@ -4,6 +4,19 @@
 #include "Renderer.hpp"
 #include "PerlinGenerator.hpp"
 
+struct PerlinParams {
+    int width;
+    int height;
+    int octaves;
+    float persistence;
+    int seed;
+
+    const char* layersNames[4] = {"layer1", "layer2", "layer3", "layer4"};
+    float layersThresholds[4] = {0.f, 0.f, 0.f, 0.f};
+    ImVec4 layersColors[4];
+    int layersIdx = 0;
+};
+
 class EditorScene : public Scene {
 public:
     EditorScene();
@@ -21,9 +34,6 @@ private:
     PerlinGenerator _perlinGen;
     double* _pixels{nullptr};
     SDL_Texture* _perlinTexture;
-    int _perlinWidth;
-    int _perlinHeight;
-    int _perlinOctaves;
-    float _perlinPersistence;
-    int _perlinSeed;
+
+    PerlinParams _perlinParams;
 };
