@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <string>
+
 #include "Scene.hpp"
 #include "Renderer.hpp"
 #include "PerlinGenerator.hpp"
@@ -11,10 +14,12 @@ struct PerlinParams {
     float persistence;
     int seed;
 
-    const char* layersNames[4] = {"layer1", "layer2", "layer3", "layer4"};
-    float layersThresholds[4] = {0.f, 0.f, 0.f, 0.f};
-    ImVec4 layersColors[4];
     int layersIdx = 0;
+    int topIdx = 0;
+    int paletteIdx = 0;
+    std::vector<std::string> layersNames;
+    std::vector<float> layersThresholds;
+    std::vector<ImVec4> layersColors;
 };
 
 class EditorScene : public Scene {
@@ -31,6 +36,7 @@ private:
 
     bool _showGrid{false};
     bool _generatePerlin{true};
+    bool _generateTexture{true};
     PerlinGenerator _perlinGen;
     double* _pixels{nullptr};
     SDL_Texture* _perlinTexture;

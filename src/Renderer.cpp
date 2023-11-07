@@ -1,19 +1,59 @@
 #include "Renderer.hpp"
+#include <algorithm>
 
 Renderer* Renderer::instancePtr = nullptr;
 
 Renderer::Renderer() {
-    CreatePalettes();
+    CreateGrayscalePalette();
 }
 
-void Renderer::CreatePalettes() {
-    //grayscale palette
+void Renderer::CreateGrayscalePalette() {
     _palettes[0] = SDL_CreatePalette(256);
     SDL_Color colors[256];
     for (int i = 0; i < 256; i++) {
         colors[i] = {(Uint8)i, (Uint8)i, (Uint8)i, 0xFF};
     }
-    SDL_SetPaletteColors(_palettes[0], colors, 0, 256);
+
+    if (SDL_SetPaletteColors(_palettes[0], colors, 0, 256) != 0)
+        std::cout << "ERROR: " << SDL_GetError() << std::endl;
+}
+
+void Renderer::CreateLayeredPalette(std::vector<float> lThres, std::vector<ImVec4> lCols) {
+    _palettes[1] = SDL_CreatePalette(256);
+    SDL_Color colors[256];
+
+    std::vector<int> indices;
+    for (int i = 0; i < lThres.size(); i++)
+        indices.push_back(i);
+
+    std::sort(indices.begin(), indices.end(),
+            [&lThres](int& i, int& j) {
+                return lThres[i] < lThres[j];
+            });
+
+    for (auto& lt : lThres)
+        lt = (int)(lt * (256 - 1));
+
+    for (auto& col : lCols) {
+        col.x *= 255;
+        col.y *= 255;
+        col.z *= 255;
+    }
+
+    int thresMin = 0;
+    for (int l = 0; l < indices.size(); l++) {
+        int thresMax = lThres[indices[l]];
+        for (int i = thresMin; i < thresMax; i++) {
+            colors[i].r = lCols[indices[l]].x;
+            colors[i].g = lCols[indices[l]].y;
+            colors[i].b = lCols[indices[l]].z;
+            colors[i].a = 0xFF;
+        }
+        thresMin = thresMax;
+    }
+
+    if (SDL_SetPaletteColors(_palettes[1], colors, 0, 256) != 0)
+        std::cout << "ERROR: " << SDL_GetError() << std::endl;
 }
 
 void Renderer::SetRenderer(SDL_Renderer* ren) {
@@ -33,6 +73,10 @@ void Renderer::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 
 void Renderer::SetColor(SDL_Color col) {
     SDL_SetRenderDrawColor(_renderer, col.r, col.g, col.b, col.a);
+}
+
+void Renderer::SetViewport(SDL_Rect viewport) {
+    SDL_SetRenderViewport(_renderer, &viewport);
 }
 
 void Renderer::RenderPixel(int x, int y) {
@@ -63,8 +107,8 @@ SDL_Surface* Renderer::CreateSurfaceFrom(void* pixels, int width, int height,
 }
 
 SDL_Texture* Renderer::CreateTextureFromSurface(SDL_Surface* surface,
-        int palette_idx) {
-    SDL_SetSurfacePalette(surface, _palettes[palette_idx]);
+        int paletteIdx) {
+    SDL_SetSurfacePalette(surface, _palettes[paletteIdx]);
     SDL_Texture* out = SDL_CreateTextureFromSurface(_renderer, surface);
     SDL_DestroySurface(surface); // free surface (we already have a texture)
     return out;

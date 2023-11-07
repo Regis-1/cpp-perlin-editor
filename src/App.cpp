@@ -9,7 +9,7 @@ App::App(std::string title, int w, int h) {
 
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
     SDL_WindowFlags win_flags = (SDL_WindowFlags)(
-            SDL_WINDOW_OPENGL
+            SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
             );
 
     _window = SDL_CreateWindow(title.c_str(), w, h, win_flags);
