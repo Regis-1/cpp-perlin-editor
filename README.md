@@ -3,6 +3,8 @@
 This program allows users to create, customize and preview the Perlin noise map. It is possible to change the dimensions of created texture, number of octaves and the persistence coefficient. Generation is pseudorandom so there is also seed parameter to adjust.\
 Besides fundamental generation there is also "Coloring" section that let users to add color layers with specific thresholds and color the noise map.
 
+![Example map](https://github.com/Regis-1/cpp-perlin-editor/assets/59539717/c2f8da84-4f6a-4260-b39e-0a79c19d4eb6)
+
 ## To be implemented
 - exporting the noise map (with created color palette if there is any)
 - adding utilities like zooming in/out or adding marking of generated map
